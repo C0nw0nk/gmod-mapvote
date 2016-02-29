@@ -1,3 +1,7 @@
+# Info :
+
+This map voting addon supports ZS | Zombie survival, ZE | Zombie Escape, TTT | Trouble in Terrorist Town
+
 # Example :
 
 ![Alt text](http://i.imgur.com/S1tSwyI.jpg "Mapvoting example")
