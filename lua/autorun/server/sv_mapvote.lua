@@ -8,7 +8,7 @@ local settings = {
 	--Specify Individual map names instead of the wildcard approach above, This method will ensure that the votemap addon only lets maps be voted we tell it to.
 	Prefix = {
 	"gm_construct",
-	"gm_flatgrass",
+	--"gm_flatgrass", --Insert hyphens to null out maps you want to suspend from the list but not remove permantly
 	"zs_abandoned_mall_v6b",
 	"zs_snowy_castle",
 	"zs_nysc_b4a",
@@ -18,6 +18,9 @@ local settings = {
 	"zs_obj_vertigo_v14",
 	"zs_lost_base" --Ensure the last mapname you specify in this list does not have a comma on the end of it ","
 	},
+	-- How long to wait after the game has finished until we display the MapVote Menu.
+	--Set as 1 currently to display map vote 1 second after game has been won.
+	WaitTime = 1 --Set to nil or false to disable this option.
 }
 
 --[[
@@ -38,7 +41,7 @@ hook.Add("Initialize", "MapVote", function()
 			if rounds_left <= 0 or time_left <= 0 then
 				LANG.Msg("limit_vote")
 				timer.Stop("end2prep")
-				timer.Simple(8, function()
+				timer.Simple(settings.WaitTime, function()
 					MapVote.Start(settings.Length, settings.AllowCurrent, settings.Limit, settings.Prefix)
 				end)
 			end
@@ -46,12 +49,37 @@ hook.Add("Initialize", "MapVote", function()
 	end
 	
 	if GAMEMODE_NAME == "zombiesurvival" then
-		--Hook to trigger map voting like the zombie survival FGD tells us
-		--https://github.com/C0nw0nk/zombiesurvival/blob/master/gamemodes/zombiesurvival/scripting%20and%20addons.txt#L65
-		hook.Add("LoadNextMap", "ZombieSurvival-LoadNextMap", function()
-			MapVote.Start(settings.Length, settings.AllowCurrent, settings.Limit, settings.Prefix)
-			return true
-		end)
+		--Check that the WaitTime setting is not disabled
+		if isnumber(settings.WaitTime) and settings.WaitTime >= 0 then
+			--End of round hook runs when the game has been won.
+			hook.Add("EndRound", "ZombieSurvival-EndRound", function()
+				--No more rounds left to play so server will change map.
+				if gamemode.Call("ShouldRestartRound") == false then
+					--Wait this long after the round has ended and then display map vote menu.
+					timer.Simple(settings.WaitTime, function()
+						MapVote.Start(settings.Length, settings.AllowCurrent, settings.Limit, settings.Prefix)
+					end)
+				end
+			end)
+			
+			--Hook to trigger map voting like the zombie survival FGD tells us
+			--https://github.com/C0nw0nk/zombiesurvival/blob/master/gamemodes/zombiesurvival/scripting%20and%20addons.txt#L65
+			hook.Add("LoadNextMap", "ZombieSurvival-LoadNextMap", function()
+				--We return true to disable the default method since we rely on the wait time setting to trigger the map vote.
+				return true
+			end)
+		
+		--else WaitTime is disabled.
+		else
+		
+			--Hook to trigger map voting like the zombie survival FGD tells us
+			--https://github.com/C0nw0nk/zombiesurvival/blob/master/gamemodes/zombiesurvival/scripting%20and%20addons.txt#L65
+			hook.Add("LoadNextMap", "ZombieSurvival-LoadNextMap", function()
+				MapVote.Start(settings.Length, settings.AllowCurrent, settings.Limit, settings.Prefix)
+				return true
+			end)
+		
+		end
 	end
 	
 end)
