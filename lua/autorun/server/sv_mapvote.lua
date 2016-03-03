@@ -1,9 +1,9 @@
 --Maps are picked from the maps folder on your server install path.
 
 local settings = {
-	Length = 30, -- Vote lasts 30 seconds
+	Length = 30, -- Set how long the vote lasts
 	AllowCurrent = false, -- Don't allow current map to be re-voted
-	Limit = 20, -- Only allow the max choice of 20 maps
+	Limit = 20, -- Set the max number of maps you wish to be displayed
 	--Prefix = {"ttt_", "zs_", "gm_", "ze_", "cs_"}, -- Wildcard to only allow maps beginning with ttt_ , zs_, gm_, ze_ and cs_
 	--Specify Individual map names instead of the wildcard approach above, This method will ensure that the votemap addon only lets maps be voted we tell it to.
 	Prefix = {
